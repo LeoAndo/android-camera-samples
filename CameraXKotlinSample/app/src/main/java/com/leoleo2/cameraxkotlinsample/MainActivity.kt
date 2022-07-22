@@ -20,6 +20,9 @@ import androidx.camera.video.*
 import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.window.WindowManager
 import com.leoleo2.cameraxkotlinsample.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
@@ -71,6 +74,15 @@ class MainActivity : AppCompatActivity() {
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Before setting full screen flags, we must wait a bit to let UI settle; otherwise, we may
+        // be trying to set app to immersive mode before it's ready and the flags do not stick
+        viewBinding.root.postDelayed({
+            hideSystemUI()
+        }, 500)
+    }
+
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
@@ -110,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
 
-
+                    // スクリーンショットを保存する処理-START
                     val inputStream =
                         output.savedUri?.let { contentResolver.openInputStream(it) } ?: return
                     val photo = BitmapFactory.decodeStream(inputStream)
@@ -118,6 +130,7 @@ class MainActivity : AppCompatActivity() {
                     val outputStream =
                         output.savedUri?.let { contentResolver.openOutputStream(it) } ?: return
                     result.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                    // スクリーンショットを保存する処理-END
                 }
             }
         )
@@ -321,6 +334,15 @@ class MainActivity : AppCompatActivity() {
             return AspectRatio.RATIO_4_3
         }
         return AspectRatio.RATIO_16_9
+    }
+
+    private fun hideSystemUI() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, viewBinding.root).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 
     companion object {

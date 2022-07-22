@@ -11,6 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_baseline_cake_24"
+        app:layout_constraintBaseline_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="ContentDescription" />
+
     <Button
         android:id="@+id/image_capture_button"
         android:layout_width="wrap_content"
