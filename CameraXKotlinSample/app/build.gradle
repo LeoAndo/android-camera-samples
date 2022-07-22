@@ -52,4 +52,7 @@ dependencies {
 
     implementation "androidx.camera:camera-view:${camerax_version}"
     implementation "androidx.camera:camera-extensions:${camerax_version}"
+
+    //WindowManager
+    implementation 'androidx.window:window:1.0.0-alpha09'
 }
