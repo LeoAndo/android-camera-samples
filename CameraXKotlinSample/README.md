@@ -8,7 +8,7 @@ Android Studio Arctic Fox 2020.3.1以上を使う必要がある。
 </p>
 
 # android studio Version
-<img src=".capture/androidstudio_version.png" />
+<img src="./capture/androidstudio_version.png" />
 
 # capture
 <img src="./capture/file_explorer.png" width=320 />
