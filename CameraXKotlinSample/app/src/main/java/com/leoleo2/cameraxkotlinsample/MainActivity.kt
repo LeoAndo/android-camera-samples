@@ -2,29 +2,41 @@ package com.leoleo2.cameraxkotlinsample
 
 import android.Manifest
 import android.content.ContentValues
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.*
 import androidx.camera.video.VideoCapture
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import com.leoleo2.cameraxkotlinsample.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 typealias LumaListener = (luma: Double) -> Unit
 
 class MainActivity : AppCompatActivity() {
+
+    private val requestPermissions =
+        registerForActivityResult(RequestMultiplePermissions()) { grantStates: Map<String, Boolean> ->
+            var isAllGrantPermissions = true
+            for ((key, value) in grantStates) {
+                if (!value) {
+                    val message = "$key Permissionを全て許可しないとアプリが正常に動作しません"
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                    isAllGrantPermissions = false
+                }
+            }
+            if (isAllGrantPermissions) bindCameraUseCases()
+        }
     private lateinit var viewBinding: ActivityMainBinding
 
     private var imageCapture: ImageCapture? = null
@@ -40,13 +52,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(viewBinding.root)
 
         // Request camera permissions
-        if (allPermissionsGranted()) {
-            bindCameraUseCases()
-        } else {
-            ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
-        }
+        requestPermissions.launch(REQUIRED_PERMISSIONS)
 
         // Set up the listeners for take photo and video capture buttons
         viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
@@ -230,40 +236,14 @@ class MainActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(
-            baseContext, it
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults:
-        IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (allPermissionsGranted()) {
-                bindCameraUseCases()
-            } else {
-                Toast.makeText(
-                    this,
-                    "Permissions not granted by the user.",
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
-            }
-        }
-    }
-
     companion object {
         private const val TAG = "CameraXApp"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA,
