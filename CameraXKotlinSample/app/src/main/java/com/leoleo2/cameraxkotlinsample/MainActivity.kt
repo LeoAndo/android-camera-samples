@@ -186,12 +186,16 @@ class MainActivity : AppCompatActivity() {
                 }
 
             val recorder = Recorder.Builder()
-                .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
+                .setQualitySelector(
+                    QualitySelector.from(
+                        Quality.HIGHEST,
+                        FallbackStrategy.higherQualityOrLowerThan(Quality.SD)
+                    )
+                )
                 .build()
             videoCapture = VideoCapture.withOutput(recorder)
-            /*
             imageCapture = ImageCapture.Builder().build()
-
+            /*
             val imageAnalyzer = ImageAnalysis.Builder()
                 .build()
                 .also {
@@ -215,7 +219,7 @@ class MainActivity : AppCompatActivity() {
                 )
                  */
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, videoCapture
+                    this, cameraSelector, preview, imageCapture, videoCapture
                 )
 
             } catch (exc: Exception) {
