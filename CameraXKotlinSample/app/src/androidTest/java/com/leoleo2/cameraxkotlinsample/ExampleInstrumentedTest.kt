@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0199.cameraxkotlinsample
+package com.leoleo2.cameraxkotlinsample
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("jp.ac.jec.cm0199.cameraxkotlinsample", appContext.packageName)
+        assertEquals("com.leoleo2.cameraxkotlinsample", appContext.packageName)
     }
 }

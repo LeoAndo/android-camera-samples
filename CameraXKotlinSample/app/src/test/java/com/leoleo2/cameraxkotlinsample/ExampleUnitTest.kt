@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0199.cameraxkotlinsample
+package com.leoleo2.cameraxkotlinsample
 
 import org.junit.Test
 
