@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         // Request camera permissions
         if (allPermissionsGranted()) {
-            startCamera()
+            bindCameraUseCases()
         } else {
             ActivityCompat.requestPermissions(
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
@@ -171,7 +171,8 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    private fun startCamera() {
+    /** Declare and bind preview, capture and analysis use cases */
+    private fun bindCameraUseCases() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener({
@@ -247,7 +248,7 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-                startCamera()
+                bindCameraUseCases()
             } else {
                 Toast.makeText(
                     this,
