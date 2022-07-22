@@ -9,4 +9,4 @@ Android Studio Arctic Fox 2020.3.1以上を使う必要がある。
 
 # capture
 <img src="./capture/file_explorer.png" width=320 />
-<img src="./capture/googlePixel5_OS12.png" width=320 />
+<img src="./capture/googlePixel5_OS12.png" width=680 />
