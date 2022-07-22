@@ -2,10 +2,16 @@ package com.leoleo2.cameraxkotlinsample
 
 import android.Manifest
 import android.content.ContentValues
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
 
 typealias LumaListener = (luma: Double) -> Unit
 
@@ -95,11 +102,19 @@ class MainActivity : AppCompatActivity() {
                     Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                 }
 
-                override fun
-                        onImageSaved(output: ImageCapture.OutputFileResults) {
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val msg = "Photo capture succeeded: ${output.savedUri}"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
+
+
+                    val inputStream =
+                        output.savedUri?.let { contentResolver.openInputStream(it) } ?: return
+                    val photo = BitmapFactory.decodeStream(inputStream)
+                    val result: Bitmap = combineBitmap(photo, screenShot())
+                    val outputStream =
+                        output.savedUri?.let { contentResolver.openOutputStream(it) } ?: return
+                    result.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
                 }
             }
         )
@@ -239,6 +254,28 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
+    }
+
+    private fun combineBitmap(b1: Bitmap, b2: Bitmap): Bitmap {
+        val result = Bitmap.createBitmap(b1.width, b1.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
+        canvas.drawBitmap(b1, 0f, 0f, null)
+        b1.recycle()
+        val srcRect = Rect(0, 0, b2.width, b2.height)
+        val dstRect = Rect(0, 0, result.width, result.height)
+        canvas.drawBitmap(b2, srcRect, dstRect, null)
+        b2.recycle()
+        return result
+    }
+
+    private fun screenShot(): Bitmap {
+        var retBitmap: Bitmap? = null
+        val rootView = window.decorView.findViewById<ViewGroup>(android.R.id.content)
+        val frameView = rootView.getChildAt(0)
+        frameView.setDrawingCacheEnabled(true)
+        retBitmap = Bitmap.createBitmap(frameView.getDrawingCache())
+        frameView.setDrawingCacheEnabled(false)
+        return retBitmap
     }
 
     companion object {
