@@ -3,6 +3,7 @@ package com.android.example.cameraxapp
 import android.Manifest
 import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -185,6 +186,7 @@ class MainActivity : AppCompatActivity() {
     }
     /**
      * imageCaptureを使う場合こちらのstartCameraメソッドを使う.
+     * すべてのデバイスでサポート: エミュレータでも動作確認可能 (OS11以上 推奨)
      */
     /*
     private fun startCamera() {
@@ -234,7 +236,9 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * videoCaptureを使う場合こちらのstartCameraメソッドを使う.
+     * すべてのデバイスでサポート: 実機を使用してテストすることをおすすめします
      */
+    /*
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
@@ -276,6 +280,75 @@ class MainActivity : AppCompatActivity() {
                 // Bind use cases to camera
                 cameraProvider
                     .bindToLifecycle(this, cameraSelector, preview, videoCapture)
+            } catch (exc: Exception) {
+                Log.e(TAG, "Use case binding failed", exc)
+            }
+
+        }, ContextCompat.getMainExecutor(this))
+    }
+    */
+
+    /**
+     * INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED以上のデバイスで動作するコード.
+     *
+     * ユースケースの組み合わせ(preview + imageCapture + videoCapture) を使う場合こちらのstartCameraメソッドを使う.
+     * 注: preview + imageCapture + videoCapture + imageAnalysis の組み合わせはサポートされていない.
+     * すべてのデバイスでサポート: 実機を使用してテストすることをおすすめします
+     *
+     * @see android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+     */
+    private fun startCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+
+        cameraProviderFuture.addListener({
+            // Used to bind the lifecycle of cameras to the lifecycle owner
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+
+            // Preview
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
+                }
+            // FallbackStrategy を既存の QualitySelector 作成に追加します。
+            // これにより、必要な Quality.HIGHEST が imageCapture のユースケースでサポートされていない場合、
+            // CameraX はサポートされている解像度を選択できます。
+            val recorder = Recorder.Builder()
+                .setQualitySelector(
+                    QualitySelector.from(
+                        Quality.HIGHEST,
+                        FallbackStrategy.higherQualityOrLowerThan(Quality.SD)
+                    )
+                )
+                .build()
+            videoCapture = VideoCapture.withOutput(recorder)
+
+            imageCapture = ImageCapture.Builder().build()
+
+            /*
+            val imageAnalyzer = ImageAnalysis.Builder().build()
+                .also {
+                    setAnalyzer(
+                        cameraExecutor,
+                        LuminosityAnalyzer { luma ->
+                            Log.d(TAG, "Average luminosity: $luma")
+                        }
+                    )
+                }
+            */
+
+            // Select back camera as a default
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            try {
+                // Unbind use cases before rebinding
+                cameraProvider.unbindAll()
+
+                // Bind use cases to camera
+                cameraProvider.bindToLifecycle(
+                    this, cameraSelector, preview, imageCapture, videoCapture
+                )
+
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
