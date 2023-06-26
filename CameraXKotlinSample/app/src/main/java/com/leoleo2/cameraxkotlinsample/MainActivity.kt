@@ -97,12 +97,18 @@ class MainActivity : AppCompatActivity() {
                 put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
             }
         }
+        val imageCollection =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // 共有ストレージのPicturesディレクトリのパスを取得する
+                MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            } else {
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            }
 
         // Create output options object which contains file + metadata
         val outputOptions = ImageCapture.OutputFileOptions
             .Builder(
                 contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                imageCollection,
                 contentValues
             )
             .build()
