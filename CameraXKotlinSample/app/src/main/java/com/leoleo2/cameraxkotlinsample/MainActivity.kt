@@ -190,6 +190,7 @@ class MainActivity : AppCompatActivity() {
                             isEnabled = true
                         }
                     }
+
                     is VideoRecordEvent.Finalize -> {
                         if (!recordEvent.hasError()) {
                             val msg = "Video capture succeeded: " +
@@ -257,20 +258,20 @@ class MainActivity : AppCompatActivity() {
                 // during the lifecycle of this use case
                 .setTargetRotation(rotation)
                 .build()
-/*
-            val imageAnalyzer = ImageAnalysis.Builder()
-                // We request aspect ratio but no resolution
-                .setTargetAspectRatio(screenAspectRatio)
-                // Set initial target rotation, we will have to call this again if rotation changes
-                // during the lifecycle of this use case
-                .setTargetRotation(rotation)
-                .build()
-                .also {
-                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                        Log.d(TAG, "Average luminosity: $luma")
-                    })
-                }
- */
+            /*
+                        val imageAnalyzer = ImageAnalysis.Builder()
+                            // We request aspect ratio but no resolution
+                            .setTargetAspectRatio(screenAspectRatio)
+                            // Set initial target rotation, we will have to call this again if rotation changes
+                            // during the lifecycle of this use case
+                            .setTargetRotation(rotation)
+                            .build()
+                            .also {
+                                it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                                    Log.d(TAG, "Average luminosity: $luma")
+                                })
+                            }
+             */
 
             // Select back camera as a default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
