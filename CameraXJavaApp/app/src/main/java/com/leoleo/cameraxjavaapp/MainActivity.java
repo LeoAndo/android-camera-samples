@@ -32,6 +32,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Activityで直接 CameraX APIを呼び出す作り
+ */
 public class MainActivity extends AppCompatActivity {
     private ImageCapture imageCapture;
     private ExecutorService cameraExecutor;
@@ -160,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private boolean allPermissionsGranted(Context context) {
         final String[] permissions = getRequiredPermissions();
-        return Arrays.stream(permissions).allMatch(permission -> ContextCompat.checkSelfPermission(context, "") == PackageManager.PERMISSION_GRANTED);
+        return Arrays.stream(permissions).allMatch(permission -> ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED);
     }
 
     private String[] getRequiredPermissions() {
