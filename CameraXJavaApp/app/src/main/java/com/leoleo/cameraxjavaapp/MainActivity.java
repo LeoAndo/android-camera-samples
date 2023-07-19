@@ -20,8 +20,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.text.SimpleDateFormat;
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String[]> requestPermissions = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), (Map<String, Boolean> grantStates) -> {
         final boolean isPermissionAllGranted = grantStates.entrySet().stream().allMatch(Map.Entry::getValue);
         if (!isPermissionAllGranted) {
-            showToast("Runtime Permissionを全て許可しないとアプリが正常に動作しません");
+            showSnackBar("Runtime Permissionを全て許可しないとアプリが正常に動作しません");
         } else {
             startCamera();
         }
@@ -107,8 +107,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
                 final String msg = "Photo capture succeeded: " + output.getSavedUri();
-                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                Log.d(TAG, msg);
+                showSnackBar(msg);
             }
 
             @Override
@@ -174,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
         return permissions;
     }
 
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    private void showSnackBar(String message) {
+        Snackbar.make(getWindow().getDecorView(), message, Snackbar.LENGTH_LONG).show();
         Log.d(TAG, message);
     }
 }
